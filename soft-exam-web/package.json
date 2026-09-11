@@ -1,0 +1,19 @@
+{
+  "name": "soft-exam-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SoftExam 的自动发布学习网站。",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/sync-content.mjs && astro dev",
+    "build": "node scripts/sync-content.mjs && astro build",
+    "preview": "astro preview"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@astrojs/starlight": "^0.42.0",
+    "astro": "^7.3.2"
+  }
+}

@@ -1,0 +1,39 @@
+name: Deploy SoftExam
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'SoftExam/**'
+      - 'soft-exam-web/**'
+      - '.github/workflows/deploy.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install website dependencies
+        run: npm install --prefix soft-exam-web
+      - name: Build website
+        run: npm run build --prefix soft-exam-web
+      - name: Configure deployment key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Publish static site
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          rsync -az --delete --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-web/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"

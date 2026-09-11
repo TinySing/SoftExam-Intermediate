@@ -1,0 +1,8 @@
+.DS_Store
+Intermediate/
+*.pdf
+SoftExam/.obsidian/
+soft-exam-web/node_modules/
+soft-exam-web/.astro/
+soft-exam-web/dist/
+soft-exam-web/src/content/docs/
