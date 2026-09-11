@@ -1,8 +1,14 @@
 .DS_Store
+node_modules/
 Intermediate/
 *.pdf
 SoftExam/.obsidian/
 soft-exam-web/node_modules/
 soft-exam-web/.astro/
 soft-exam-web/dist/
+soft-exam-practice/node_modules/
+soft-exam-practice/.astro/
+soft-exam-practice/dist/
+soft-exam-practice/data/
+soft-exam-practice/.env
 soft-exam-web/src/content/docs/

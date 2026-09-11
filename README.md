@@ -20,3 +20,16 @@
 以后新增的 PDF、题目、讲义或其他资料可以放在当前文件夹中；需要长期学习和复习的内容，再整理到 `SoftExam/` 内对应的章节中。
 
 除非是原始资料或待整理资料，不要把日常学习笔记放在这个上级文件夹里。
+
+## Web 项目
+
+仓库采用 Monorepo 管理两个独立应用：
+
+- `soft-exam-web/`：资料阅读站，读取 `SoftExam/` 中的 Markdown 内容。
+- `soft-exam-practice/`：独立模拟做题系统，维护自己的题库和练习能力。
+
+两个应用分别构建、分别部署，只有资料站入口和知识点回链保持必要关联。根目录的 GitHub Actions 已同时覆盖资料站静态发布和做题系统服务发布；服务器上的做题 API 由 systemd 持续运行。
+
+### 本地预览
+
+在仓库根目录运行 `VITE_PORT=4322 npm run dev:practice`，然后打开 `http://localhost:4322/`。做题系统会同时启动前端和本地 SQLite API；资料站仍使用 `http://localhost:4321/soft-exam/`。

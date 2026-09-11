@@ -1,0 +1,22 @@
+{
+  "name": "soft-exam-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "description": "SoftExam 学习资料站与模拟做题系统 Monorepo。",
+  "workspaces": [
+    "soft-exam-web",
+    "soft-exam-practice"
+  ],
+  "scripts": {
+    "dev:docs": "npm run dev --workspace soft-exam-web",
+    "dev:practice": "npm run dev --workspace soft-exam-practice",
+    "build:docs": "npm run build --workspace soft-exam-web",
+    "build:practice": "npm run build --workspace soft-exam-practice"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "soft-exam-practice": "file:soft-exam-practice"
+  }
+}

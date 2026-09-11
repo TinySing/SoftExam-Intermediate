@@ -35,3 +35,5 @@ npm run dev
 - 将 GitHub Actions 使用的 SSH 公钥加入服务器的授权列表。
 
 部署前只需把 Nginx 配置里的域名替换为实际域名。首次部署时需要检查服务器现有网站与 Nginx 配置，避免覆盖已有服务。
+
+资料站头部的“模拟做题”入口在本地默认跳转到 `http://localhost:4322/`，线上通过 `PUBLIC_PRACTICE_URL` 配置做题系统地址。

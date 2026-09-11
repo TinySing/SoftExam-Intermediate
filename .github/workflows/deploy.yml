@@ -7,6 +7,7 @@ on:
     paths:
       - 'SoftExam/**'
       - 'soft-exam-web/**'
+      - 'soft-exam-practice/**'
       - '.github/workflows/deploy.yml'
 
 permissions:
@@ -38,3 +39,59 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
           rsync -az --delete --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-web/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+
+  deploy-practice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check practice deployment configuration
+        id: practice-config
+        env:
+          PRACTICE_WEB_PATH: ${{ secrets.PRACTICE_WEB_PATH }}
+          PRACTICE_APP_PATH: ${{ secrets.PRACTICE_APP_PATH }}
+          PRACTICE_RESTART_COMMAND: ${{ secrets.PRACTICE_RESTART_COMMAND }}
+        run: |
+          if [ -n "$PRACTICE_WEB_PATH" ] && [ -n "$PRACTICE_APP_PATH" ] && [ -n "$PRACTICE_RESTART_COMMAND" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Practice deployment is not configured; skip it."
+          fi
+      - uses: actions/checkout@v4
+        if: steps.practice-config.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.practice-config.outputs.enabled == 'true'
+        with:
+          node-version: 22
+      - name: Install practice dependencies
+        if: steps.practice-config.outputs.enabled == 'true'
+        run: npm ci --prefix soft-exam-practice
+      - name: Build practice frontend
+        if: steps.practice-config.outputs.enabled == 'true'
+        env:
+          VITE_DOCS_URL: ${{ vars.DOCS_PUBLIC_URL || '/soft-exam/' }}
+          VITE_BASE_PATH: /practice/
+          VITE_API_BASE_URL: /practice-api
+        run: npm run build --prefix soft-exam-practice
+      - name: Configure deployment key
+        if: steps.practice-config.outputs.enabled == 'true'
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+      - name: Publish practice frontend and service
+        if: steps.practice-config.outputs.enabled == 'true'
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          PRACTICE_WEB_PATH: ${{ secrets.PRACTICE_WEB_PATH }}
+          PRACTICE_APP_PATH: ${{ secrets.PRACTICE_APP_PATH }}
+          PRACTICE_RESTART_COMMAND: ${{ secrets.PRACTICE_RESTART_COMMAND }}
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$PRACTICE_WEB_PATH' '$PRACTICE_APP_PATH/question-bank'"
+          rsync -az --delete --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_WEB_PATH/"
+          rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/package.json soft-exam-practice/package-lock.json soft-exam-practice/server/ "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/"
+          rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/question-bank/soft-exam-practice.sqlite "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/question-bank/"
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd '$PRACTICE_APP_PATH' && npm ci && $PRACTICE_RESTART_COMMAND"

@@ -1,0 +1,77 @@
+---
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import SiteTitle from 'virtual:starlight/components/SiteTitle';
+import SocialIcons from 'virtual:starlight/components/SocialIcons';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const shouldRenderSearch = config.pagefind || config.components.Search !== '@astrojs/starlight/components/Search.astro';
+const practiceUrl = import.meta.env.DEV ? 'http://localhost:4322/' : (import.meta.env.PUBLIC_PRACTICE_URL || '/practice/');
+---
+
+<div class="soft-exam-header">
+  <div class="soft-exam-title sl-flex">
+    <SiteTitle />
+  </div>
+  <div class="soft-exam-search sl-flex print:hidden">
+    {shouldRenderSearch && <Search />}
+  </div>
+  <div class="soft-exam-actions sl-flex print:hidden">
+    <a class="practice-link" href={practiceUrl} aria-label="打开模拟做题系统">
+      <span class="practice-link-mark">试</span>
+      <span>模拟做题</span>
+    </a>
+    <div class="soft-exam-social sl-flex">
+      <SocialIcons />
+    </div>
+    <ThemeSelect />
+    <LanguageSelect />
+  </div>
+</div>
+
+<style>
+  .soft-exam-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sl-nav-gap);
+    height: 100%;
+  }
+
+  .soft-exam-title {
+    min-width: 0;
+    overflow: clip;
+    padding: .25rem;
+    margin: -.25rem;
+  }
+
+  .soft-exam-search { flex: 1; justify-content: center; }
+  .soft-exam-actions, .soft-exam-social { align-items: center; gap: 1rem; }
+  .soft-exam-social { padding-right: 1rem; border-right: 1px solid var(--sl-color-gray-5); }
+
+  .practice-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .42rem .65rem;
+    border: 1px solid var(--sl-color-accent);
+    border-radius: .45rem;
+    color: var(--sl-color-accent-high);
+    font-size: .82rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .practice-link:hover { background: var(--sl-color-accent-low); color: var(--sl-color-white); }
+  .practice-link-mark { display: grid; width: 1.25rem; height: 1.25rem; place-items: center; border-radius: .3rem; background: var(--sl-color-accent); color: var(--sl-color-black); font-size: .68rem; }
+
+  @media (max-width: 50rem) {
+    .soft-exam-header { gap: .45rem; }
+    .soft-exam-search { justify-content: flex-end; }
+    .practice-link { padding: .4rem; }
+    .practice-link span:last-child { display: none; }
+    .soft-exam-social { display: none; }
+  }
+</style>

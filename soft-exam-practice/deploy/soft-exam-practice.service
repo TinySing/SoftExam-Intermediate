@@ -1,0 +1,17 @@
+[Unit]
+Description=SoftExam Practice API
+After=network.target
+
+[Service]
+Type=simple
+User=github-actions
+Group=github-actions
+WorkingDirectory=/var/www/soft-exam-practice
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=4000
+
+[Install]
+WantedBy=multi-user.target
