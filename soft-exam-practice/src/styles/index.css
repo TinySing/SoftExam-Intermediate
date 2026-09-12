@@ -391,44 +391,62 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px sol
   .review-layout .question-main, .exercise-layout .question-main, .case-layout.case-review-layout .case-main { display: block; height: auto; }
   .review-layout .question-stem, .review-layout .options-list, .exercise-layout .question-stem, .exercise-layout .options-list, .case-layout.case-review-layout .case-text { overflow: visible; }
   .review-layout > .answer-panel, .exercise-layout > .question-panel, .case-layout.case-review-layout > .answer-panel { height: auto; overflow: visible; }
-  .question-panel, .case-sidebar { order: -1; }
+  .question-panel, .case-sidebar { order: 1; }
   .exam-layout .answer-panel, .case-layout .answer-panel { position: static; order: 0; }
+  .exam-layout .question-panel, .case-layout:not(.case-review-layout) .case-sidebar { order: 1; }
   .palette-grid { grid-template-columns: repeat(12, 1fr); }
   .palette-button { width: 32px; }
 }
 
 @media (max-width: 640px) {
   .page-wrap { width: min(100% - 28px, 560px); }
-  .app-header { min-height: 42px; }
-  .top-nav { gap: 0; }
-  .top-nav button, .top-nav a { padding: 5px 4px; font-size: .68rem; }
-  .top-nav .user-chip { max-width: 88px; }
+  .app-header { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; min-height: 0; padding: 6px 0 5px; }
+  .brand { min-width: 0; }
+  .brand small { display: none; }
+  .top-nav { width: 100%; min-width: 0; gap: 1px; justify-content: flex-start; overflow-x: auto; border-top: 1px solid var(--border); padding-top: 5px; scrollbar-width: none; }
+  .top-nav::-webkit-scrollbar { display: none; }
+  .top-nav button, .top-nav a { flex: 0 0 auto; padding: 5px 7px; font-size: .68rem; white-space: nowrap; }
+  .top-nav .user-chip { max-width: 120px; }
   .top-nav .theme-button { margin-left: 2px; }
-  .page-intro { align-items: start; flex-direction: column; padding: 48px 0 34px; gap: 26px; }
+  .page-intro { align-items: start; flex-direction: column; padding: 28px 0 22px; gap: 20px; }
+  .page-intro.compact-intro { padding: 17px 0 14px; }
   .page-intro h1 { font-size: 2.8rem; }
   .intro-meta { width: 100%; grid-template-columns: auto auto auto auto; align-items: end; }
   .mode-selector { align-items: stretch; flex-direction: column; gap: 15px; }
-  .mode-options { grid-template-columns: 1fr; }
-  .practice-console { padding: 17px; }
-  .mode-tabs { grid-template-columns: 1fr; }
+  .mode-options { grid-template-columns: 1fr 1fr; }
+  .practice-console { margin-bottom: 24px; padding: 15px; }
+  .practice-console-head { gap: 12px; padding-bottom: 15px; }
+  .practice-console-head h2 { font-size: 1.15rem; }
+  .practice-console-head p { font-size: .74rem; }
+  .mode-tabs { grid-template-columns: 1fr 1fr; }
   .selection-fields, .selection-fields:has(.selection-count), .selection-fields:has(.selection-fixed), .case-picker { grid-template-columns: 1fr; }
   .selection-fields.is-random { grid-template-columns: 1fr; }
   .mode-option { min-width: 0; }
+  .mode-option { padding: 10px 9px 10px 13px; }
+  .mode-option strong { font-size: .76rem; }
+  .mode-option small { font-size: .64rem; }
   .mock-picker { grid-template-columns: 1fr; }
-  .quick-actions { grid-template-columns: 1fr; margin-bottom: 54px; }
+  .selection-step { margin-bottom: 11px; }
+  .selection-flow { padding-top: 16px; }
+  .selection-hint { margin-top: 13px; }
+  .quick-actions { grid-template-columns: 1fr; margin-bottom: 32px; }
   .section-title { align-items: start; flex-direction: column; gap: 8px; }
   .exam-card { align-items: flex-start; flex-direction: column; gap: 15px; }
   .card-button { width: 100%; }
-  .exam-topbar { gap: 10px; }
-  .exam-topbar > div:first-child { gap: 8px; }
+  .exam-topbar { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'title action' 'meta meta'; gap: 5px 10px; min-height: 0; padding: 7px 0 6px; }
+  .exam-topbar > div:first-child { grid-area: title; min-width: 0; gap: 8px; }
+  .exam-topbar > .exam-progress, .exam-topbar > .mode-label, .exam-topbar > .timer, .exam-topbar > .case-progress { grid-area: meta; justify-self: end; }
+  .exam-topbar > .submit-button, .exam-topbar > .case-top-actions { grid-area: action; align-self: center; }
   .exam-title { max-width: 130px; }
   .timer { flex-direction: column; align-items: end; gap: 1px; }
-  .exam-layout, .case-layout { padding-top: 29px; }
-  .question-stem { margin: 18px 0 24px; font-size: 1.25rem; }
+  .exam-layout, .case-layout { gap: 17px; padding: 20px 0 28px; }
+  .question-stem { margin: 16px 0 21px; font-size: 1.2rem; }
+  .option-button { gap: 10px; padding: 12px 13px; font-size: .84rem; }
   .question-actions { align-items: stretch; flex-direction: column; }
   .question-actions > div:last-child { width: 100%; }
   .question-actions .secondary-control, .question-actions .primary-control { flex: 1; }
-  .palette-grid { grid-template-columns: repeat(8, 1fr); }
+  .question-panel, .case-sidebar { padding: 15px; }
+  .palette-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; padding: 13px 0; }
   .score-grid { grid-template-columns: repeat(2, 1fr); }
   .score-grid > div:nth-child(odd) { border-left: 0; }
   .score-grid > div { min-height: 92px; padding: 14px; }
@@ -438,9 +456,14 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px sol
   .score-main strong { font-size: 2.2rem; }
   .review-card-head { flex-wrap: wrap; }
   .review-card-head strong { margin-left: 0; }
-  .case-heading { font-size: 1.15rem; }
+  .case-heading { font-size: 1.05rem; }
+  .case-text { padding: 16px; font-size: .82rem; line-height: 1.8; }
+  .case-table { min-width: 480px; font-size: .74rem; }
+  .case-table th, .case-table td { padding: 8px 9px; }
+  .case-answer { min-height: 140px; padding: 12px; font-size: .82rem; }
   .case-progress { display: none; }
-  .case-top-actions .secondary-control, .case-top-actions .submit-button { padding: 0 8px; font-size: .68rem; }
+  .case-top-actions { gap: 4px; }
+  .case-top-actions .secondary-control, .case-top-actions .submit-button { min-height: 32px; padding: 0 7px; font-size: .64rem; }
   .settings-page { padding: 48px 0 70px; }
   .settings-actions { flex-direction: column; }
 }
