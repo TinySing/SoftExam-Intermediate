@@ -3,10 +3,47 @@ export type QuestionType = 'single-choice' | 'case';
 export type OptionKey = 'A' | 'B' | 'C' | 'D';
 export type ExamMode = 'practice' | 'exercise' | 'mock';
 
+export interface User {
+  id: string;
+  displayName: string;
+  createdAt: string;
+}
+
+export interface ModelConfig {
+  provider: 'deepseek';
+  baseUrl: string;
+  model: string;
+  configured: boolean;
+  apiKeyMasked: string;
+}
+
+export interface ModelOption {
+  id: string;
+  label: string;
+  description: string;
+  recommended: boolean;
+}
+
+export interface CaseGradingResult {
+  score: number;
+  maxScore: number;
+  summary: string;
+  confidence: 'high' | 'medium' | 'low';
+  items: { criterion: string; score: number; maxScore: number; reason: string }[];
+}
+
+export interface FullMockCaseResult {
+  question: Question;
+  answer: string;
+  grading: CaseGradingResult | null;
+  error?: string;
+}
+
 export interface Exam {
   id: string;
   title: string;
   type: ExamType;
+  origin?: 'past' | 'custom' | 'generated';
   year: string;
   session: string;
   batch?: string;
@@ -26,6 +63,8 @@ export interface Question {
   examId: string;
   number: number;
   type: QuestionType;
+  origin?: 'past' | 'custom' | 'generated';
+  module?: string;
   stem: string;
   options: QuestionOption[];
   answer?: OptionKey | null;
@@ -39,6 +78,7 @@ export interface Question {
 
 export interface AttemptSummary {
   id: string;
+  userId: string;
   examId: string;
   examTitle: string;
   submittedAt: string;

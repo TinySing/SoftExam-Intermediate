@@ -8,6 +8,7 @@ export default defineConfig({
     starlight({
       title: 'SoftExam',
       description: '系统集成项目管理工程师学习资料',
+      head: [{ tag: 'script', content: "(() => { const key = 'starlight-theme'; if (!localStorage.getItem(key)) localStorage.setItem(key, 'light'); document.documentElement.dataset.theme = 'light'; })();" }],
       defaultLocale: 'root',
       locales: { root: { label: '简体中文', lang: 'zh-CN' } },
       customCss: ['./src/styles/custom.css'],

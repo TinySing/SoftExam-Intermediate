@@ -4,11 +4,13 @@ interface QuestionPaletteProps {
   questions: Question[];
   currentIndex: number;
   answers: Record<string, string>;
+  caseAnswers?: Record<string, string>;
   marked: Set<string>;
   onSelect: (index: number) => void;
 }
 
-export function QuestionPalette({ questions, currentIndex, answers, marked, onSelect }: QuestionPaletteProps) {
+export function QuestionPalette({ questions, currentIndex, answers, caseAnswers = {}, marked, onSelect }: QuestionPaletteProps) {
+  const answeredQuestionIds = new Set([...Object.keys(answers), ...Object.keys(caseAnswers).filter((questionId) => caseAnswers[questionId]?.trim())]);
   return (
     <aside className="question-panel">
       <div className="panel-heading">
@@ -25,7 +27,7 @@ export function QuestionPalette({ questions, currentIndex, answers, marked, onSe
       </div>
       <div className="palette-grid">
         {questions.map((question, index) => {
-          const isAnswered = Boolean(answers[question.id]);
+          const isAnswered = answeredQuestionIds.has(question.id);
           const isMarked = marked.has(question.id);
           return (
             <button
@@ -40,9 +42,9 @@ export function QuestionPalette({ questions, currentIndex, answers, marked, onSe
         })}
       </div>
       <div className="palette-summary">
-        <span>已答 <strong>{Object.keys(answers).length}</strong></span>
+        <span>已答 <strong>{answeredQuestionIds.size}</strong></span>
         <span>待检查 <strong>{marked.size}</strong></span>
-        <span>未答 <strong>{questions.length - Object.keys(answers).length}</strong></span>
+        <span>未答 <strong>{questions.length - answeredQuestionIds.size}</strong></span>
       </div>
     </aside>
   );
