@@ -440,12 +440,18 @@ button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 2px sol
   .exam-title { max-width: 130px; }
   .timer { flex-direction: column; align-items: end; gap: 1px; }
   .exam-layout, .case-layout { gap: 17px; padding: 20px 0 28px; }
-  .question-stem { margin: 16px 0 21px; font-size: 1.1rem; }
-  .option-button { gap: 10px; padding: 12px 13px; font-size: .84rem; }
+  .question-stem { margin: 14px 0 17px; font-size: 1.1rem; }
+  .option-button { gap: 9px; min-height: 46px; padding: 9px 11px; font-size: .8rem; line-height: 1.4; }
+  .review-layout .option-button, .exercise-layout .option-button { height: auto; min-height: 46px; }
+  .option-key { width: 22px; height: 22px; font-size: .66rem; }
   .question-actions { align-items: stretch; flex-direction: column; }
   .question-actions > div:last-child { width: 100%; }
   .question-actions .secondary-control, .question-actions .primary-control { flex: 1; }
-  .question-actions .secondary-control, .question-actions .primary-control { min-height: 44px; }
+  .question-actions .secondary-control, .question-actions .primary-control { min-height: 42px; }
+  .review-layout .question-actions, .case-layout.case-review-layout .question-actions { margin-top: 14px; }
+  .answer-panel .panel-heading { margin-bottom: 11px; }
+  .answer-panel .answer-panel-explanation { margin-top: 15px; padding-top: 14px; }
+  .answer-panel .rich-answer-text { font-size: .76rem; line-height: 1.65; }
   .question-panel, .case-sidebar { padding: 15px; }
   .palette-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; padding: 13px 0; }
   .score-grid { grid-template-columns: repeat(2, 1fr); }
