@@ -90,8 +90,9 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -p "$DEPLOY_PORT" -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$PRACTICE_WEB_PATH' '$PRACTICE_APP_PATH/question-bank'"
+          ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "mkdir -p '$PRACTICE_WEB_PATH' '$PRACTICE_APP_PATH/server' '$PRACTICE_APP_PATH/question-bank'"
           rsync -az --delete --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_WEB_PATH/"
-          rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/package.json soft-exam-practice/package-lock.json soft-exam-practice/server/ "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/"
+          rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/package.json soft-exam-practice/package-lock.json "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/"
+          rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/server/ "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/server/"
           rsync -az --chmod=D755,F644 -e "ssh -p $DEPLOY_PORT" soft-exam-practice/question-bank/soft-exam-practice.sqlite "$DEPLOY_USER@$DEPLOY_HOST:$PRACTICE_APP_PATH/question-bank/"
           ssh -p "$DEPLOY_PORT" "$DEPLOY_USER@$DEPLOY_HOST" "cd '$PRACTICE_APP_PATH' && npm ci && $PRACTICE_RESTART_COMMAND"
