@@ -33,8 +33,8 @@ export function getUser(userId: string) {
   return request<User>(`/users/${encodeURIComponent(userId)}`);
 }
 
-export function createUser(displayName: string) {
-  return request<User>('/users', { method: 'POST', body: JSON.stringify({ displayName }) });
+export function loginUser(username: string) {
+  return request<User>('/login', { method: 'POST', body: JSON.stringify({ username }) });
 }
 
 export function getModules(type: 'single-choice' | 'case' = 'single-choice') {

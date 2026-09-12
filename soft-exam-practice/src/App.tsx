@@ -3,7 +3,7 @@ import { QuestionPalette } from './components/QuestionPalette';
 import {
   getAttempts,
   getUser,
-  createUser,
+  loginUser,
   getModelConfig,
   getExamQuestions,
   getExams,
@@ -359,8 +359,7 @@ function App() {
   const [attempts, setAttempts] = useState<AttemptSummary[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [userReady, setUserReady] = useState(false);
-  const [userNameInput, setUserNameInput] = useState('');
-  const [userIdInput, setUserIdInput] = useState('');
+  const [usernameInput, setUsernameInput] = useState('');
   const [userSwitching, setUserSwitching] = useState(false);
   const [wrongQuestions, setWrongQuestions] = useState<WrongQuestion[]>([]);
   const [selectedExam, setSelectedExam] = useState<Exam | null>(null);
@@ -523,55 +522,27 @@ function App() {
     if (caseModules.length <= 1 && caseQuestionSource === 'module') setCaseQuestionSource('exam');
   }, [caseModules.length, caseQuestionSource]);
 
-  async function handleCreateUser(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const displayName = userNameInput.trim();
-    if (!displayName) {
-      setError('请输入昵称');
+    const username = usernameInput.trim().toLowerCase();
+    if (!/^[a-z][a-z0-9_-]{2,23}$/.test(username)) {
+      setError('用户名需为 3-24 位英文开头，可包含英文、数字、下划线或短横线');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      const createdUser = await createUser(displayName);
-      localStorage.setItem(USER_KEY, createdUser.id);
-      setUser(createdUser);
+      const loggedInUser = await loginUser(username);
+      localStorage.setItem(USER_KEY, loggedInUser.id);
+      setUser(loggedInUser);
       setUserReady(true);
       setUserSwitching(false);
-      setUserNameInput('');
-      setUserIdInput('');
+      setUsernameInput('');
       setWrongQuestions([]);
       setScreen('home');
-      await loadWorkspace(createdUser);
+      await loadWorkspace(loggedInUser);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : '用户创建失败');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleUseExistingUser(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const userId = userIdInput.trim();
-    if (!userId) {
-      setError('请输入用户 ID');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      const loadedUser = await getUser(userId);
-      localStorage.setItem(USER_KEY, loadedUser.id);
-      setUser(loadedUser);
-      setUserReady(true);
-      setUserSwitching(false);
-      setUserNameInput('');
-      setUserIdInput('');
-      setWrongQuestions([]);
-      setScreen('home');
-      await loadWorkspace(loadedUser);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : '用户切换失败');
+      setError(requestError instanceof Error ? requestError.message : '登录失败，请重试');
     } finally {
       setLoading(false);
     }
@@ -966,19 +937,14 @@ function App() {
       <div className="user-gate">
         <section className="user-card" role="dialog" aria-modal="true" aria-labelledby="user-dialog-title">
           <span className="kicker">USER PROFILE</span>
-          <h1 id="user-dialog-title">{user ? '切换用户' : '先创建一个用户'}</h1>
-          <p>练习记录和错题本会按用户 ID 分开保存。不需要密码，适合在本机区分几位使用者。</p>
-          <form className="user-form" onSubmit={(event) => void handleCreateUser(event)}>
-            <label><span>创建新用户</span><input value={userNameInput} onChange={(event) => setUserNameInput(event.target.value)} placeholder="输入昵称，例如：小明" maxLength={24} autoFocus={!user} /></label>
-            <button className="primary-control" type="submit">创建并进入</button>
+          <h1 id="user-dialog-title">{user ? '切换登录用户' : '登录练习系统'}</h1>
+          <p>输入英文用户名即可登录。首次使用会自动创建，练习记录和错题本会跟随用户名保存，换设备也能继续。</p>
+          <form className="user-form" onSubmit={(event) => void handleLogin(event)}>
+            <label><span>英文用户名</span><input value={usernameInput} onChange={(event) => setUsernameInput(event.target.value)} placeholder="例如：zhangsan" maxLength={24} autoFocus autoComplete="username" autoCapitalize="none" spellCheck={false} /></label>
+            <button className="primary-control" type="submit">登录并进入</button>
           </form>
-          <div className="user-divider"><span>已有用户 ID</span></div>
-          <form className="user-form" onSubmit={(event) => void handleUseExistingUser(event)}>
-            <label><span>用户 ID</span><input value={userIdInput} onChange={(event) => setUserIdInput(event.target.value)} placeholder="粘贴已有用户 ID" autoFocus={Boolean(user)} /></label>
-            <button className="secondary-control" type="submit">使用已有用户</button>
-          </form>
-          {user && <p className="user-current-id">当前用户 ID：{user.id}</p>}
-          {user && <button className="user-cancel" type="button" onClick={() => { setUserSwitching(false); setUserNameInput(''); setUserIdInput(''); setError(''); }}>取消切换</button>}
+          {user && <p className="user-current-id">当前登录：{user.displayName}</p>}
+          {user && <button className="user-cancel" type="button" onClick={() => { setUserSwitching(false); setUsernameInput(''); setError(''); }}>取消切换</button>}
         </section>
       </div>
     );

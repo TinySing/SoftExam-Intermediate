@@ -330,21 +330,54 @@ function hasUser(userId: string) {
   return Boolean(userId && queryOne('SELECT id FROM users WHERE id = ?', [userId]));
 }
 
-app.get('/api/health', (_request, response) => response.json({ ok: true }));
-app.post('/api/users', (request, response) => {
-  const displayName = String(request.body?.displayName || '').trim().slice(0, 24);
-  if (!displayName) return response.status(400).json({ message: '请输入昵称' });
-  const id = `user-${createId()}`;
+const usernamePattern = /^[a-z][a-z0-9_-]{2,23}$/i;
+
+function normalizeUsername(value: unknown) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function isValidUsername(username: string) {
+  return usernamePattern.test(username);
+}
+
+function loginOrCreateUser(username: string) {
   const now = new Date().toISOString();
-  run('INSERT INTO users (id, display_name, created_at, last_seen_at) VALUES (?, ?, ?, ?)', [id, displayName, now, now]);
+  const existingUser = queryOne('SELECT id, display_name, created_at FROM users WHERE id = ?', [username])
+    || queryOne('SELECT id, display_name, created_at FROM users WHERE lower(display_name) = ?', [username]);
+  if (existingUser) {
+    const currentId = String(existingUser.id);
+    if (currentId !== username && !queryOne('SELECT id FROM users WHERE id = ?', [username])) {
+      run('UPDATE users SET id = ?, display_name = ?, last_seen_at = ? WHERE id = ?', [username, username, now, currentId]);
+      run('UPDATE attempts SET user_id = ? WHERE user_id = ?', [username, currentId]);
+      persistDatabase();
+      return { id: username, displayName: username, createdAt: existingUser.created_at };
+    }
+    run('UPDATE users SET last_seen_at = ? WHERE id = ?', [now, currentId]);
+    persistDatabase();
+    return { id: currentId, displayName: existingUser.display_name, createdAt: existingUser.created_at };
+  }
+
+  run('INSERT INTO users (id, display_name, created_at, last_seen_at) VALUES (?, ?, ?, ?)', [username, username, now, now]);
   const nonLegacyUsers = queryOne("SELECT COUNT(*) AS count FROM users WHERE id <> 'legacy'");
-  if (Number(nonLegacyUsers?.count || 0) === 1) run("UPDATE attempts SET user_id = ? WHERE user_id = 'legacy'", [id]);
+  if (Number(nonLegacyUsers?.count || 0) === 1) run("UPDATE attempts SET user_id = ? WHERE user_id = 'legacy'", [username]);
   persistDatabase();
-  response.status(201).json({ id, displayName, createdAt: now });
+  return { id: username, displayName: username, createdAt: now };
+}
+
+app.get('/api/health', (_request, response) => response.json({ ok: true }));
+app.post('/api/login', (request, response) => {
+  const username = normalizeUsername(request.body?.username);
+  if (!isValidUsername(username)) return response.status(400).json({ message: '用户名需为 3-24 位英文开头，可包含英文、数字、下划线或短横线' });
+  response.json(loginOrCreateUser(username));
+});
+app.post('/api/users', (request, response) => {
+  const username = normalizeUsername(request.body?.displayName);
+  if (!isValidUsername(username)) return response.status(400).json({ message: '用户名需为 3-24 位英文开头，可包含英文、数字、下划线或短横线' });
+  response.json(loginOrCreateUser(username));
 });
 app.get('/api/users/:userId', (request, response) => {
   const user = queryOne('SELECT id, display_name, created_at FROM users WHERE id = ?', [request.params.userId]);
-  if (!user) return response.status(404).json({ message: '用户不存在，请重新创建或检查用户 ID' });
+  if (!user) return response.status(404).json({ message: '用户不存在，请检查用户名' });
   run('UPDATE users SET last_seen_at = ? WHERE id = ?', [new Date().toISOString(), request.params.userId]);
   persistDatabase();
   response.json({ id: user.id, displayName: user.display_name, createdAt: user.created_at });
@@ -419,13 +452,13 @@ app.get('/api/practice-questions', (request, response) => {
 app.get('/api/attempts', (request, response) => {
   const userId = getQueryUserId(request);
   if (!userId) return response.status(400).json({ message: '缺少用户 ID' });
-  if (!hasUser(userId)) return response.status(404).json({ message: '用户不存在，请重新创建或检查用户 ID' });
+  if (!hasUser(userId)) return response.status(404).json({ message: '用户不存在，请重新登录' });
   response.json(queryAll(`SELECT attempts.*, question_sets.title AS exam_title FROM attempts JOIN question_sets ON question_sets.id = attempts.exam_id WHERE attempts.user_id = ? ORDER BY submitted_at DESC LIMIT 30`, [userId]).map((row) => ({ id: row.id, userId: row.user_id, examId: row.exam_id, examTitle: row.source_title || row.exam_title, submittedAt: row.submitted_at, score: row.score, total: row.total, correct: row.correct, wrong: row.wrong, unanswered: row.unanswered })));
 });
 app.get('/api/wrong-questions', (request, response) => {
   const userId = getQueryUserId(request);
   if (!userId) return response.status(400).json({ message: '缺少用户 ID' });
-  if (!hasUser(userId)) return response.status(404).json({ message: '用户不存在，请重新创建或检查用户 ID' });
+  if (!hasUser(userId)) return response.status(404).json({ message: '用户不存在，请重新登录' });
   response.json(queryAll(`SELECT questions.*, question_sets.title AS exam_title, MAX(attempts.submitted_at) AS last_attempt_at FROM attempt_answers JOIN questions ON questions.id = attempt_answers.question_id JOIN attempts ON attempts.id = attempt_answers.attempt_id JOIN question_sets ON question_sets.id = questions.exam_id WHERE attempts.user_id = ? AND attempt_answers.is_correct = 0 AND attempt_answers.selected_answer IS NOT NULL AND questions.type = 'single-choice' GROUP BY questions.id ORDER BY last_attempt_at DESC`, [userId]).map((row) => ({ questionId: row.id, examTitle: row.exam_title, number: row.number, stem: cleanExamText(row.stem), options: JSON.parse(String(row.options_json)), correctAnswer: row.correct_answer, explanation: cleanQuestionExplanation(row.id, row.explanation), lastAttemptAt: row.last_attempt_at })));
 });
 app.post('/api/attempts', (request, response) => {
