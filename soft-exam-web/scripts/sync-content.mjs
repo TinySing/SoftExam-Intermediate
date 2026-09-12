@@ -5,14 +5,16 @@ import { fileURLToPath } from 'node:url';
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const sourceRoot = path.resolve(projectRoot, '../SoftExam');
 const destinationRoot = path.join(projectRoot, 'src/content/docs');
+const siteBase = '/soft-exam';
 const asideKinds = { important: 'note', tip: 'tip', warning: 'caution', question: 'caution' };
 
 function convertWikiLinks(markdown) {
-  return markdown.replace(/\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g, (_match, target, heading, label) => {
-    const route = `/${target.replace(/^\/+|\.md$/g, '')}/`;
+  const withWikiLinks = markdown.replace(/\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g, (_match, target, heading, label) => {
+    const route = `${siteBase}/${target.replace(/^\/+|\.md$/g, '')}/`;
     const anchor = heading ? `#${encodeURIComponent(heading)}` : '';
     return `[${label || target.split('/').at(-1)}](${route}${anchor})`;
   });
+  return withWikiLinks.replace(/\]\(\/(?!\/)/g, `](${siteBase}/`);
 }
 
 function toStarlightMarkdown(source, relativePath) {
