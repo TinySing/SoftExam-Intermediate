@@ -73,15 +73,15 @@ header.header { border-bottom: 1px solid var(--sl-color-gray-5); background: col
 .right-sidebar-panel :where(a) { font-size: .85rem; line-height: 1.45; }
 mobile-starlight-toc :where(a) { font-size: .95rem; line-height: 1.7; }
 @media (min-width: 72rem) {
-  .right-sidebar-container { width: 18rem; }
+  .right-sidebar-container { width: 288px; }
   [data-has-sidebar][data-has-toc] .main-pane {
     width: min(
-      calc(100% - 18rem),
-      calc(var(--sl-content-width) + (100% - var(--sl-content-width) - 18rem) / 2)
+      calc(100% - 288px),
+      calc(var(--sl-content-width) + (100% - var(--sl-content-width) - 288px) / 2)
     );
   }
   .right-sidebar-panel .sl-container {
-    width: calc(18rem - 2 * var(--sl-sidebar-pad-x));
+    width: calc(288px - 2 * var(--sl-sidebar-pad-x));
     max-width: none;
   }
 }
