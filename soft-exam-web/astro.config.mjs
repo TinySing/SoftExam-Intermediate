@@ -22,6 +22,7 @@ export default defineConfig({
         { label: '精华知识点', items: [{ autogenerate: { directory: '01-精华知识点' } }] },
         { label: '计算与专项', items: [{ autogenerate: { directory: '02-计算与专项' } }] },
         { label: '案例与真题', items: [{ autogenerate: { directory: '03-案例与真题' } }] },
+        { label: '高频重点', items: [{ autogenerate: { directory: '05-高频重点' } }] },
         { label: '附录', items: [{ autogenerate: { directory: '04-附录' } }] },
       ],
     }),
