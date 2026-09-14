@@ -6,7 +6,7 @@ const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const sourceRoot = path.resolve(projectRoot, '../SoftExam');
 const destinationRoot = path.join(projectRoot, 'src/content/docs');
 const siteBase = '/soft-exam';
-const asideKinds = { important: 'note', tip: 'tip', warning: 'caution', question: 'caution' };
+const asideKinds = { abstract: 'note', example: 'tip', important: 'note', tip: 'tip', warning: 'caution', question: 'caution' };
 
 function convertWikiLinks(markdown) {
   const withWikiLinks = markdown.replace(/\[\[([^\]|#]+)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g, (_match, target, heading, label) => {
