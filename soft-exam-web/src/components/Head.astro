@@ -12,18 +12,22 @@ const { head } = Astro.locals.starlightRoute;
   async function renderMermaid() {
     if (rendering) return;
 
-    const blocks = [...document.querySelectorAll('pre code.language-mermaid')];
+    const blocks = [...document.querySelectorAll('pre[data-language="mermaid"]')];
     if (!blocks.length) return;
 
     rendering = true;
     const diagrams = blocks
-      .map((code) => {
-        const source = code.closest('pre');
-        if (!source) return null;
+      .map((source) => {
+        const code = source.querySelector('code');
+        if (!code) return null;
+
+        const lines = [...code.querySelectorAll('.ec-line')]
+          .map((line) => line.textContent || '')
+          .join('\n');
 
         const container = document.createElement('div');
         container.className = 'mermaid-diagram';
-        container.textContent = code.textContent || '';
+        container.textContent = lines || code.textContent || '';
         source.replaceWith(container);
         return { container, source };
       })
