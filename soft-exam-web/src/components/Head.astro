@@ -48,6 +48,10 @@ const { head } = Astro.locals.starlightRoute;
     }
   }
 
-  renderMermaid();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid, { once: true });
+  } else {
+    renderMermaid();
+  }
   document.addEventListener('astro:page-load', renderMermaid);
 </script>
