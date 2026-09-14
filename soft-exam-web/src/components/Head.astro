@@ -1,0 +1,49 @@
+---
+const { head } = Astro.locals.starlightRoute;
+---
+
+{head.map(({ tag: Tag, attrs, content }) => <Tag {...attrs} set:html={content} />)}
+
+<script>
+  import mermaid from 'mermaid';
+
+  let rendering = false;
+
+  async function renderMermaid() {
+    if (rendering) return;
+
+    const blocks = [...document.querySelectorAll('pre code.language-mermaid')];
+    if (!blocks.length) return;
+
+    rendering = true;
+    const diagrams = blocks
+      .map((code) => {
+        const source = code.closest('pre');
+        if (!source) return null;
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-diagram';
+        container.textContent = code.textContent || '';
+        source.replaceWith(container);
+        return { container, source };
+      })
+      .filter(Boolean);
+
+    try {
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: 'strict',
+        theme: document.documentElement.dataset.theme === 'dark' ? 'dark' : 'default',
+      });
+      await mermaid.run({ nodes: diagrams.map(({ container }) => container) });
+    } catch (error) {
+      console.error('Mermaid rendering failed:', error);
+      diagrams.forEach(({ container, source }) => container.replaceWith(source));
+    } finally {
+      rendering = false;
+    }
+  }
+
+  renderMermaid();
+  document.addEventListener('astro:page-load', renderMermaid);
+</script>

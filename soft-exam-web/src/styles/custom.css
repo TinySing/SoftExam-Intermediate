@@ -54,6 +54,8 @@ header.header { border-bottom: 1px solid var(--sl-color-gray-5); background: col
 }
 .sl-markdown-content .starlight-aside--note .starlight-aside__content { color: #e9e8ff; }
 .sl-markdown-content table { font-size: .9rem; }
+.mermaid-diagram { overflow-x: auto; margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--sl-color-gray-5); border-radius: .8rem; background: var(--sl-color-gray-7); text-align: center; }
+.mermaid-diagram svg { max-width: 100%; height: auto; }
 .right-sidebar-panel :where(h2) { margin-bottom: .7rem; font-size: 1.05rem; }
 .right-sidebar-panel :where(a) { font-size: .95rem; line-height: 1.7; }
 mobile-starlight-toc :where(a) { font-size: .95rem; line-height: 1.7; }

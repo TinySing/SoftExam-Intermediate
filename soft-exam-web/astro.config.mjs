@@ -13,6 +13,7 @@ export default defineConfig({
       locales: { root: { label: '简体中文', lang: 'zh-CN' } },
       customCss: ['./src/styles/custom.css'],
       components: {
+        Head: './src/components/Head.astro',
         Header: './src/components/Header.astro',
         Pagination: './src/components/Pagination.astro',
       },
